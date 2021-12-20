@@ -20,17 +20,32 @@ function isOwnPageAnchorLink( el ) {
 /**
  * Gets the title of a local page from an href given some configuration.
  *
- * @param {string} href
+ * @param {HTMLAnchorElement} link
  * @param {mw.Map} config
- * @return {string|undefined}
+ * @return {Object|undefined}
  */
-export function getTitle( href, config ) {
+export function getTitleInfo( link, config ) {
 	// Skip every URI that mw.Uri cannot parse
 	let linkHref;
 	try {
-		linkHref = new mw.Uri( href );
+		linkHref = new mw.Uri( link.href );
 	} catch ( e ) {
 		return undefined;
+	}
+
+	if ( link.classList && link.classList.contains( 'extiw' ) ) {
+		// Interwiki link.
+		let titleParts = link.title.split( ':' ),
+			interwikiPrefix = titleParts.shift(),
+			foreignTitle = titleParts.join( ':' ),
+			foreignApiUrl = config.get( 'wgPopupsForeignApiUrls' )[interwikiPrefix];
+
+		if ( !foreignApiUrl ) {
+			// We don't know the API endpoint for this external wiki.
+			return undefined;
+		}
+
+		return { title: foreignTitle, apiUrl: foreignApiUrl };
 	}
 
 	// External links
@@ -57,7 +72,13 @@ export function getTitle( href, config ) {
 		title = linkHref.query.title;
 	}
 
-	return title ? `${title}${linkHref.fragment ? `#${linkHref.fragment}` : ''}` : undefined;
+	if ( !title ) {
+		return undefined;
+	}
+
+	return {
+		title: `${title}${linkHref.fragment ? `#${linkHref.fragment}` : ''}`
+	};
 }
 
 /**
@@ -89,20 +110,38 @@ export function isValid( title, contentNamespaces ) {
  *
  * @param {HTMLAnchorElement} el
  * @param {mw.Map} config
- * @return {mw.Title|null}
+ * @return {Object|null} Contains: 1) "mwTitle" field of type mw.Title, 2) optional "apiUrl" field (string).
  */
 export function fromElement( el, config ) {
 	if ( isOwnPageAnchorLink( el ) ) {
 		// No need to check the namespace. A self-link can't point to different one.
 		try {
-			return mw.Title.newFromText( config.get( 'wgPageName' ) + decodeURIComponent( el.hash ) );
+			return {
+				mwTitle: mw.Title.newFromText( config.get( 'wgPageName' ) + decodeURIComponent( el.hash ) )
+			};
 		} catch ( e ) {
 			return null;
 		}
 	}
 
-	return isValid(
-		getTitle( el.href, config ),
-		config.get( 'wgContentNamespaces' )
-	);
+	let titleInfo = getTitleInfo( el, config );
+	if ( !titleInfo ) {
+		return null;
+	}
+
+	let mwTitle;
+
+	if ( titleInfo.apiUrl ) {
+		// For interwiki links, we don't know or care to know the namespaces it has, so assume that link is always valid.
+		mwTitle = mw.Title.newFromText( titleInfo.title );
+	} else {
+		mwTitle = isValid( titleInfo.title, config.get( 'wgContentNamespaces' ) )
+	}
+
+	if ( !mwTitle ) {
+		return null;
+	}
+
+	titleInfo.mwTitle = mwTitle;
+	return titleInfo;
 }

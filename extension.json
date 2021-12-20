@@ -109,6 +109,10 @@
 				"Special:MostLinkedFiles",
 				"Special:Book"
 			]
+		},
+		"PopupsForeignApiUrls": {
+			"description": "Maps interwiki prefixes (only those for which Popups should be enabled) to their API URL, for example: $wgPopupsForeignApiUrls = [ 'otherwiki' => 'https://otherwiki.example.com/w/api.php' ];",
+			"value": {}
 		}
 	},
 	"ResourceModules": {
@@ -203,6 +207,7 @@
 			"dependencies": [
 				"ext.popups.images",
 				"mediawiki.experiments",
+				"mediawiki.ForeignApi",
 				"mediawiki.jqueryMsg",
 				"mediawiki.storage",
 				"mediawiki.Title",

@@ -55,7 +55,6 @@ export default function createMediaWikiApiGateway( api, config ) {
 			uselang: 'content'
 		}, {
 			headers: {
-				'X-Analytics': 'preview=1',
 				'Accept-Language': config.acceptLanguage
 			}
 		} );
