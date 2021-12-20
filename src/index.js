@@ -5,6 +5,7 @@
 import * as Redux from 'redux';
 import * as ReduxThunk from 'redux-thunk';
 
+import createMediaWikiApiGateway from './gateway/mediawiki';
 import createPagePreviewGateway from './gateway/page';
 import createReferenceGateway from './gateway/reference';
 import createUserSettings from './userSettings';
@@ -26,7 +27,6 @@ import getPageviewTracker, { getSendBeacon } from './getPageviewTracker';
 import { previewTypes, getPreviewType } from './preview/model';
 
 const EXCLUDED_LINK_SELECTORS = [
-	'.extiw',
 	'.image',
 	'.new',
 	'.internal',
@@ -243,37 +243,47 @@ function registerChangeListeners(
 	 */
 	$( document )
 		.on( 'mouseover keyup', validLinkSelector, function ( event ) {
-			const mwTitle = titleFromElement( this, mw.config );
-			if ( !mwTitle ) {
+			const titleInfo = titleFromElement( this, mw.config );
+			if ( !titleInfo ) {
 				return;
 			}
-			const type = getPreviewType( this, mw.config, mwTitle );
-			let gateway;
 
-			switch ( type ) {
-				case previewTypes.TYPE_PAGE:
-					gateway = pagePreviewGateway;
-					break;
-				case previewTypes.TYPE_REFERENCE:
-					gateway = referenceGateway;
-					break;
-				default:
-					return;
+			const { mwTitle, apiUrl } = titleInfo;
+			let gateway, type;
+
+			if ( apiUrl ) {
+				// Interwiki link.
+				gateway = createMediaWikiApiGateway( new mw.ForeignApi( apiUrl ), {} );
+				type = previewTypes.TYPE_PAGE;
+			} else {
+				type = getPreviewType( this, mw.config, mwTitle );
+				switch ( type ) {
+					case previewTypes.TYPE_PAGE:
+						gateway = pagePreviewGateway;
+						break;
+					case previewTypes.TYPE_REFERENCE:
+						gateway = referenceGateway;
+						break;
+					default:
+						return;
+				}
 			}
 
 			boundActions.linkDwell( mwTitle, this, event, gateway, generateToken, type );
 		} )
 		.on( 'mouseout blur', validLinkSelector, function () {
-			const mwTitle = titleFromElement( this, mw.config );
+			const titleInfo = titleFromElement( this, mw.config );
 
-			if ( mwTitle ) {
+			if ( titleInfo ) {
 				boundActions.abandon();
 			}
 		} )
 		.on( 'click', validLinkSelector, function ( event ) {
-			const mwTitle = titleFromElement( this, mw.config );
-			if ( mwTitle ) {
-				const type = getPreviewType( this, mw.config, mwTitle );
+			const titleInfo = titleFromElement( this, mw.config );
+
+			if ( titleInfo ) {
+				const { mwTitle, apiUrl } = titleInfo;
+				const type = apiUrl ? previewTypes.TYPE_PAGE : getPreviewType( this, mw.config, mwTitle );
 
 				switch ( type ) {
 					case previewTypes.TYPE_PAGE:
