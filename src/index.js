@@ -259,6 +259,11 @@ function registerChangeListeners(
 				type = getPreviewType( this, mw.config, mwTitle );
 				switch ( type ) {
 					case previewTypes.TYPE_PAGE:
+						if ( mw.config.get( 'wgPopupsInterwikiOnly' ) ) {
+							// Popups are disabled for internal links (except references).
+							return;
+						}
+
 						gateway = pagePreviewGateway;
 						break;
 					case previewTypes.TYPE_REFERENCE:

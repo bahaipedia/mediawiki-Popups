@@ -113,6 +113,10 @@
 		"PopupsForeignApiUrls": {
 			"description": "Maps interwiki prefixes (only those for which Popups should be enabled) to their API URL, for example: $wgPopupsForeignApiUrls = [ 'otherwiki' => 'https://otherwiki.example.com/w/api.php' ];",
 			"value": {}
+		},
+		"PopupsInterwikiOnly": {
+			"description": "@var bool: If true, then Popups are not used for internal links (only for interwiki links and references).",
+			"value": false
 		}
 	},
 	"ResourceModules": {

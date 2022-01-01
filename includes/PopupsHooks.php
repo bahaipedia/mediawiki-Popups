@@ -141,6 +141,10 @@ class PopupsHooks {
 		$vars['wgPopupsRestGatewayEndpoint'] = $config->get( 'PopupsRestGatewayEndpoint' );
 		$vars['wgPopupsStatsvSamplingRate'] = $config->get( 'PopupsStatsvSamplingRate' );
 		$vars['wgPopupsForeignApiUrls'] = $config->get( 'PopupsForeignApiUrls' );
+
+		if ( $config->get( 'PopupsInterwikiOnly' ) ) {
+			$vars['wgPopupsInterwikiOnly'] = 1;
+		}
 	}
 
 	/**
