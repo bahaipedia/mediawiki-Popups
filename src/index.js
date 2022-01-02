@@ -288,7 +288,8 @@ function registerChangeListeners(
 
 			if ( titleInfo ) {
 				const { mwTitle, apiUrl } = titleInfo;
-				const type = apiUrl ? previewTypes.TYPE_PAGE : getPreviewType( this, mw.config, mwTitle );
+				const type = apiUrl ? previewTypes.TYPE_PAGE :
+					getPreviewType( this, mw.config, mwTitle );
 
 				switch ( type ) {
 					case previewTypes.TYPE_PAGE:

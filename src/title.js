@@ -35,10 +35,10 @@ export function getTitleInfo( link, config ) {
 
 	if ( link.classList && link.classList.contains( 'extiw' ) ) {
 		// Interwiki link.
-		let titleParts = link.title.split( ':' ),
+		const titleParts = link.title.split( ':' ),
 			interwikiPrefix = titleParts.shift(),
 			foreignTitle = titleParts.join( ':' ),
-			foreignApiUrl = config.get( 'wgPopupsForeignApiUrls' )[interwikiPrefix];
+			foreignApiUrl = config.get( 'wgPopupsForeignApiUrls' )[ interwikiPrefix ];
 
 		if ( !foreignApiUrl ) {
 			// We don't know the API endpoint for this external wiki.
@@ -110,7 +110,8 @@ export function isValid( title, contentNamespaces ) {
  *
  * @param {HTMLAnchorElement} el
  * @param {mw.Map} config
- * @return {Object|null} Contains: 1) "mwTitle" field of type mw.Title, 2) optional "apiUrl" field (string).
+ * @return {Object|null} Contains: 1) "mwTitle" field of type mw.Title,
+ * 2) optional "apiUrl" field (string).
  */
 export function fromElement( el, config ) {
 	if ( isOwnPageAnchorLink( el ) ) {
@@ -124,7 +125,7 @@ export function fromElement( el, config ) {
 		}
 	}
 
-	let titleInfo = getTitleInfo( el, config );
+	const titleInfo = getTitleInfo( el, config );
 	if ( !titleInfo ) {
 		return null;
 	}
@@ -132,10 +133,11 @@ export function fromElement( el, config ) {
 	let mwTitle;
 
 	if ( titleInfo.apiUrl ) {
-		// For interwiki links, we don't know or care to know the namespaces it has, so assume that link is always valid.
+		// For interwiki links, we don't know or care to know the namespaces it has,
+		// so assume that link is always valid.
 		mwTitle = mw.Title.newFromText( titleInfo.title );
 	} else {
-		mwTitle = isValid( titleInfo.title, config.get( 'wgContentNamespaces' ) )
+		mwTitle = isValid( titleInfo.title, config.get( 'wgContentNamespaces' ) );
 	}
 
 	if ( !mwTitle ) {
