@@ -5,6 +5,7 @@
 import * as Redux from 'redux';
 import * as ReduxThunk from 'redux-thunk';
 
+import constants from './constants';
 import createMediaWikiApiGateway from './gateway/mediawiki';
 import createPagePreviewGateway from './gateway/page';
 import createReferenceGateway from './gateway/reference';
@@ -253,7 +254,7 @@ function registerChangeListeners(
 
 			if ( apiUrl ) {
 				// Interwiki link.
-				gateway = createMediaWikiApiGateway( new mw.ForeignApi( apiUrl ), {} );
+				gateway = createMediaWikiApiGateway( new mw.ForeignApi( apiUrl ), constants );
 				type = previewTypes.TYPE_PAGE;
 			} else {
 				type = getPreviewType( this, mw.config, mwTitle );
