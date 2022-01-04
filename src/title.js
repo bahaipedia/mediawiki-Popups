@@ -34,18 +34,29 @@ export function getTitleInfo( link, config ) {
 	}
 
 	if ( link.classList && link.classList.contains( 'extiw' ) ) {
-		// Interwiki link.
-		const titleParts = link.title.split( ':' ),
-			interwikiPrefix = titleParts.shift(),
-			foreignTitle = titleParts.join( ':' ),
-			foreignApiUrl = config.get( 'wgPopupsForeignApiUrls' )[ interwikiPrefix ];
+		const $link = $( link );
 
-		if ( !foreignApiUrl ) {
-			// We don't know the API endpoint for this external wiki.
-			return undefined;
+		let foreignInfo = $link.data( 'foreignTitleInfo' );
+		if ( !foreignInfo ) {
+			// Interwiki link.
+			const titleParts = link.title.split( ':' ),
+				interwikiPrefix = titleParts.shift(),
+				foreignTitle = titleParts.join( ':' ),
+				foreignApiUrl = config.get( 'wgPopupsForeignApiUrls' )[ interwikiPrefix ];
+
+			if ( foreignApiUrl ) {
+				foreignInfo = { title: foreignTitle, apiUrl: foreignApiUrl };
+			} else {
+				// We don't know the API endpoint for this external wiki.
+				foreignInfo = false;
+			}
+
+			// Save to cache, because Popups is blanking "title" attribute while the popup is shown,
+			// so we wouldn't be able to calculate this from within "mouseout" event handler.
+			$link.data( 'foreignTitleInfo', foreignInfo );
 		}
 
-		return { title: foreignTitle, apiUrl: foreignApiUrl };
+		return foreignInfo;
 	}
 
 	// External links
