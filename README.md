@@ -1,3 +1,6 @@
+Note: This extension has been modified to support interwiki links.
+
+
 ![Popups](./popups.svg)
 
 # mediawiki/extensions/Popups
